@@ -5,9 +5,10 @@ import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Build
+import com.example.lightmagic.blinker.Torch
 
 
-class Torch(context: Context) {
+class CameraTorch(context: Context) : Torch {
     private val cameraManager     : CameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
     private lateinit var cameraId : String
 
@@ -16,12 +17,9 @@ class Torch(context: Context) {
     var lightEnabled : Boolean = false
         private set
 
-    var lightOn : Boolean
+    var lightOn : Boolean = _lightOn
         get() = lightEnabled && _lightOn
-        set(value) {
-            if (value != _lightOn)
-                setLight(value)
-        }
+        private set
 
     var lightListener : LightListener? = null
 
@@ -37,6 +35,17 @@ class Torch(context: Context) {
         }
 
         initTorchCallback()
+    }
+
+
+    override fun on() {
+        if (!_lightOn)
+            setLight(true)
+    }
+
+    override fun off() {
+        if (_lightOn)
+            setLight(false)
     }
 
 
