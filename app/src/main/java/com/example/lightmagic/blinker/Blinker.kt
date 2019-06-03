@@ -2,15 +2,19 @@ package com.example.lightmagic.blinker
 
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 
 
 open class Blinker<T>(var torch: Torch, var protocol: BlinkerProtocol<T>) {
     private var executorService : ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+    private var completeFuture : ScheduledFuture<*>? = null
 
 
     fun blink(value : T) {
-        blink(protocol.bits(value))
+        if (completeFuture == null || completeFuture!!.isDone) {
+            blink(protocol.bits(value))
+        }
     }
 
 
@@ -18,7 +22,7 @@ open class Blinker<T>(var torch: Torch, var protocol: BlinkerProtocol<T>) {
         var delay: Long = 0
 
         for (bit in bits) {
-            executorService.schedule({
+            completeFuture = executorService.schedule({
                 if (bit.value)
                     torch.on()
                 else

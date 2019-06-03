@@ -20,20 +20,11 @@ class MainActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
     private var time: Date = Date()
 
 
-    override fun onSaveInstanceState(outState: Bundle?) {
-        super.onSaveInstanceState(outState)
-        outState?.putSerializable(TIME_KEY, time)
-    }
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val savedTime = savedInstanceState?.get(TIME_KEY) as? Date
-        if (savedTime != null) {
-            time = savedTime
-        }
+        restoreTime(savedInstanceState)
 
         torch   = CameraTorch(this)
         blinker = Blinker(torch, BraceletProtocol())
@@ -42,12 +33,33 @@ class MainActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         initSetupButton()
     }
 
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        outState?.putSerializable(TIME_KEY, time)
+    }
+
+
     override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
         calendar.set(Calendar.MINUTE, minute)
 
-        this.setTime(calendar.time)
+        setTime(calendar.time)
+    }
+
+
+    private fun restoreTime(savedInstanceState: Bundle?) {
+        val savedTime = savedInstanceState?.get(TIME_KEY) as? Date
+        if (savedTime != null) {
+            time = savedTime
+        }
+    }
+
+
+    private fun initTimeView() {
+        timeView.setOnClickListener { showTimePicker() }
+        setTime(time)
     }
 
     private fun initSetupButton() {
@@ -55,11 +67,6 @@ class MainActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
             val millisecondsLeft = Math.max(0, time.time - Date().time)
             blinker.blink(millisecondsLeft)
         }
-    }
-
-    private fun initTimeView() {
-        timeView.setOnClickListener { showTimePicker() }
-        this.setTime(time)
     }
 
 
