@@ -44,6 +44,8 @@ class MainActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
         calendar.set(Calendar.MINUTE, minute)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
 
         setTime(calendar.time)
     }
